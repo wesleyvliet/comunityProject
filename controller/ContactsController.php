@@ -10,25 +10,23 @@ class ContactsController{
 	{
 		try {
 			$op = isset($_REQUEST['op'])?$_REQUEST['op']:NULL;
-			switch ($op) {
-				case 'create':
-				$this->collectCreateContact();
-				break;
-				case 'reads':
-				$this->collectReadContacts();
-				break;
-				case 'read':
-				$this->collectReadContact($_REQUEST['id']);
-				break;
-				case 'update':
-				$this->collectUpdateContact();
-				break;
-				case 'delete':
-				$this->collectDeleteContact($_REQUEST['id']);
-				break;
-				default:
-				$this->collectReadContacts();
-				break;
+			$url = strtolower($_GET['url']);
+			if(!empty($op)) {
+				switch ($op) {
+					case 'login':
+					$this->collectReadAdmin($_REQUEST['userName'], $_REQUEST['userPass']);
+					break;
+					default:
+					echo $op;
+					break;
+				}
+			} else {
+				switch ($url) {
+					case 'admin': include 'view/login.php'; break;
+					default:
+					echo $url;
+					break;
+				}
 			}
 		} catch (ValidationException $e) {
 				$errors = $e->getErrors();
@@ -40,9 +38,22 @@ class ContactsController{
 
 	}
 
-	public function collectReadContacts(){
-		$contacts = $this->ContactsLogic->readContacts();
-		include 'view/reads.php';
+	public function collectReadAdmin($userName, $userPass){
+		$check = $this->ContactsLogic->checkData($userName, $userPass);
+		if($check == false) {
+			$admin = $this->ContactsLogic->readAdmin($userName, $userPass);
+			if(empty($admin)) {
+				$error = "Verkeerde wachtwoord of gebruikersnaam";
+				include 'view/login.php';
+			} else {
+				include 'view/dashboard.php';
+				echo var_dump($admin);
+			}
+		} else {
+			$error = 'Ongeldige gegevens bij het inlogen controleer de velden opnieuw';
+			include 'view/login.php';
+		}
+		//include 'view/reads.php';
 	}
 
 	public function collectReadContact($id){

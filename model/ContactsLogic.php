@@ -4,17 +4,30 @@ require_once 'model/DataHandler.php';
 class ContactsLogic {
 
 	public function __construct() {
-		$this->DataHandler = new Datahandler('localhost','mysql' ,'test' ,'root' ,'');
+		$this->DataHandler = new Datahandler('localhost','mysql' ,'g69' ,'root' ,'');
 	}
 
 	public function createContact($name, $phone, $email, $address){
 
 	}
 
-	public function readContacts(){
-		$sql = 'SELECT * FROM contacts';
+	public function checkData($userName, $userPass) {
+		$error = false;
+		if(empty($userName) || empty($userPass)) {
+			$error = true;
+		}
+		if(strlen($userName) > 60 || strlen($userPass) > 60) {
+			$error = true;
+		}
+		return $error;
+	}
+
+	public function readAdmin($userName, $userPass){
+		$sql = "SELECT * FROM admin WHERE username = '$userName' AND password = '$userPass'";
 		$results = $this->DataHandler->readsData($sql);
-		return $results;
+		while($row = $results->fetch(PDO::FETCH_ASSOC)) {
+		    return($row);
+		}
 	}
 
 	public function readContact($id){
